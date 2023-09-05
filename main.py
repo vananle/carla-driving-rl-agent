@@ -68,8 +68,8 @@ if __name__ == '__main__':
                                clip_ratio=0.125, entropy_regularization=1.0, seed_regularization=True,
                                seed=51, polyak=1.0, aug_intensity=0.0, repeat_action=1)
 
-    stage3.run2(epochs=1, epoch_offset=0)
-    stage3.record(name='stage-s3', timesteps=512, trials=1, seed=51, close=True)
+    stage3.run2(epochs=100, epoch_offset=0)
+    stage3.record(name='stage-s3', timesteps=5000, trials=1, seed=51, close=True)
     exit()
     #
     # # -- STAGE-4 --
@@ -90,7 +90,7 @@ if __name__ == '__main__':
     # stage5.run2(epochs=100, epoch_offset=0)
     # exit()
     #
-    # EVALUATION:
+    # # EVALUATION:
     # towns = ['Town01', 'Town02', 'Town03', 'Town04', 'Town05', 'Town06', 'Town07', 'Town10']
     #
     # for mode in ['train', 'test']:
