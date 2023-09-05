@@ -364,7 +364,8 @@ def stage_s2(episodes: int, timesteps: int, batch_size: int, save_every=None, se
                           path=dict(origin=sample_origins(amount=50, seed=seed)),
                           spawn=dict(vehicles=0, pedestrians=50),
                           info_every=kwargs.get('repeat_action', 1),
-                          disable_reverse=True, window_size=(900, 245))
+                          disable_reverse=True, window_size=(900, 245),
+                          )
 
     return Stage(agent=agent_dict, environment=env_dict,
                  learning=dict(agent=dict(episodes=episodes, timesteps=timesteps, render_every=False, close=False,
