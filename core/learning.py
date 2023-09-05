@@ -84,6 +84,7 @@ class Stage:
         self.env_class = environment.pop('class', environment.pop('class_'))
         print('env_class', self.env_class)
         self.env_args = environment
+        print(self.env_args)
         self.env = None
 
         # Representation
