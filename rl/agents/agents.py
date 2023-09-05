@@ -67,7 +67,7 @@ class Agent:
             np.random.seed(seed)
             random.seed(seed)
 
-            self.env.seed(seed)
+            # self.env.seed(seed)
             self.seed = seed
             print(f'Random seed {seed} set.')
 
