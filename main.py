@@ -73,7 +73,7 @@ if __name__ == '__main__':
     # exit()
 
     # FL training
-    fl_train = FL_Learning(n_clients=5, n_train_round=10)
+    fl_train = FL_Learning(n_clients=1, n_train_round=10)
     fl_train.init_clients()
     fl_train.train_clients()
 
