@@ -180,7 +180,7 @@ class FL_Learning:
 
         agent_dict = define_agent(
             class_=CARLAgent, **kwargs,
-            batch_size=batch_size, name=stage_name, traces_dir=None, load=True,
+            batch_size=batch_size, name=stage_name, traces_dir=None, load=False,
             advantage_scale=2.0, load_full=True, seed=seed,
             policy_lr=policy_lr,
             value_lr=value_lr,
