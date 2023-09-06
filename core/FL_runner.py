@@ -162,9 +162,10 @@ class FL_Learning:
     def __init__(self, n_clients, n_train_round):
 
         self.n_clients = n_clients  # number of clients
-        self.clients = []  # list of stages or clients
 
         self.n_train_round = n_train_round
+
+        self.clients = []  # list of stages or clients
 
     def random_stage(self, episodes: int, timesteps: int, batch_size: int, town: str, save_every=None, seed=42,
                      stage_name='stage-random',
