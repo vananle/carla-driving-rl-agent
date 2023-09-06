@@ -255,7 +255,7 @@ class FL_Learning:
         client_idx = np.arange(self.n_clients)
 
         for round_idx in range(self.n_train_round):
-            random_client_idx = np.random.choice(client_idx, size=int(0.6 * self.n_clients), replace=False)
+            random_client_idx = np.random.choice(client_idx, size=1, replace=False)
 
             client_weights = []
 
