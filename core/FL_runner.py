@@ -256,7 +256,7 @@ class FL_Learning:
 
         for round_idx in range(self.n_train_round):
 
-            if self.n_clients < 2:
+            if self.n_clients <= 2:
                 random_client_idx = client_idx
             else:
                 random_client_idx = np.random.choice(client_idx, size=int(0.6 * self.n_clients), replace=False)
