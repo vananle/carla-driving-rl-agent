@@ -222,7 +222,7 @@ class FL_Learning:
     def init_clients(self):
 
         for i in range(self.n_clients):
-            towns = ['Town01', 'Town02', 'Town03', 'Town04']
+            towns = ['Town01', 'Town02', 'Town03', 'Town04', 'Town05']
 
             if i < 2:
                 log_mode = 'summary'
@@ -235,7 +235,7 @@ class FL_Learning:
                                                   dynamics_lr=1e-5, clip_ratio=0.1, entropy_regularization=1.0,
                                                   seed_regularization=True, seed=random.randint(0, 1000),
                                                   polyak=1.0, aug_intensity=0.8, repeat_action=1,
-                                                  town=random.choice(towns), log_mode=log_mode))
+                                                  town=towns[i], log_mode=log_mode))
 
         for idx, client in enumerate(self.clients):
             print(f'|--- Init client {idx}')
