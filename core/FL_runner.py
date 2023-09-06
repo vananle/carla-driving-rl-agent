@@ -225,9 +225,9 @@ class FL_Learning:
                                                   seed=51, polyak=1.0, aug_intensity=0.0, repeat_action=1,
                                                   log_mode=log_mode))
 
-        for idx, client in enumerate(self.clients):
-            print(f'|--- Init client {idx}')
-            client.init()
+        # for idx, client in enumerate(self.clients):
+        #     print(f'|--- Init client {idx}')
+        #     client.init()
 
     def calculate_global_weights(self, client_weights, n_trained_clients):
         """
@@ -255,6 +255,8 @@ class FL_Learning:
     def train_clients(self):
         client_idx = np.arange(self.n_clients)
 
+        global_weights = None
+
         for round_idx in range(self.n_train_round):
 
             if self.n_clients <= 2:
@@ -268,14 +270,18 @@ class FL_Learning:
                 client = self.clients[client_id]
 
                 print(f'|--- Start training client {client_id}')
+                client.init()
+                if round_idx != 0 and global_weights is not None:
+                    client.update_weights(global_weights)
 
                 client_weight = client.reinforcement_learning()
                 client_weights.append(copy.deepcopy(client_weight))
+                client.cleanup()
                 print(f'|--- Finish training client {client_id}')
 
             global_weights = self.calculate_global_weights(client_weights,
                                                            n_trained_clients=len(random_client_idx))
 
-            for client_id in client_idx:
-                client = self.clients[client_id]
-                client.update_weights(global_weights)
+            # for client_id in client_idx:
+            #     client = self.clients[client_id]
+            #     client.update_weights(global_weights)
