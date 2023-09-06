@@ -217,7 +217,7 @@ class FL_Learning:
             else:
                 log_mode = 'log'
 
-            self.clients.append(self.random_stage(stage_name=f'stage-random-client-{i}', episodes=2, timesteps=512,
+            self.clients.append(self.random_stage(stage_name=f'stage-random-client-{i}', episodes=1, timesteps=512,
                                                   batch_size=64, gamma=0.9999, lambda_=0.999, save_every='end',
                                                   update_frequency=1, policy_lr=3e-5, value_lr=3e-5, dynamics_lr=3e-4,
                                                   clip_ratio=0.125, entropy_regularization=1.0,
@@ -259,7 +259,7 @@ class FL_Learning:
 
         for round_idx in range(self.n_train_round):
 
-            if self.n_clients <= 2:
+            if self.n_clients <= 3:
                 random_client_idx = client_idx
             else:
                 random_client_idx = np.random.choice(client_idx, size=int(0.6 * self.n_clients), replace=False)
