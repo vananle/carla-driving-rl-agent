@@ -167,9 +167,8 @@ class FL_Learning:
 
         self.clients = []  # list of stages or clients
 
-    def random_stage(self, episodes: int, timesteps: int, batch_size: int, town: str, save_every=None, seed=42,
-                     stage_name='stage-random',
-                     weather=None, traffic='dense', **kwargs):
+    def random_stage(self, episodes: int, timesteps: int, batch_size: int, save_every=None, seed=42,
+                     stage_name='stage-random', **kwargs):
         """random-stage: town with dense traffic (random vehicles and random pedestrians) + random light weather
         + data-aug"""
         policy_lr = kwargs.pop('policy_lr', 3e-4)
@@ -206,15 +205,12 @@ class FL_Learning:
                               disable_reverse=True, window_size=(900, 245))
 
         return FL_Stage(agent=agent_dict, environment=env_dict,
-                        learning=dict(agent=dict(episodes=episodes, timesteps=timesteps,
-                                                 render_every=False, close=False,
-                                                 save_every=save_every)))
+                     learning=dict(agent=dict(episodes=episodes, timesteps=timesteps, render_every=False, close=False,
+                                              save_every=save_every)))
 
     def init_clients(self):
 
         for i in range(self.n_clients):
-            towns = ['Town01', 'Town02', 'Town03', 'Town04', 'Town05']
-
             if i < 2:
                 log_mode = 'summary'
             else:
@@ -226,7 +222,7 @@ class FL_Learning:
                                                   dynamics_lr=1e-5, clip_ratio=0.1, entropy_regularization=1.0,
                                                   seed_regularization=True, seed=random.randint(0, 1000),
                                                   polyak=1.0, aug_intensity=0.8, repeat_action=1,
-                                                  town=towns[i], log_mode=log_mode))
+                                                  log_mode=log_mode))
 
         for idx, client in enumerate(self.clients):
             print(f'|--- Init client {idx}')
