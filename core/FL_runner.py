@@ -205,8 +205,9 @@ class FL_Learning:
                               disable_reverse=True, window_size=(900, 245))
 
         return FL_Stage(agent=agent_dict, environment=env_dict,
-                     learning=dict(agent=dict(episodes=episodes, timesteps=timesteps, render_every=False, close=False,
-                                              save_every=save_every)))
+                        learning=dict(
+                            agent=dict(episodes=episodes, timesteps=timesteps, render_every=False, close=False,
+                                       save_every=save_every)))
 
     def init_clients(self):
 
@@ -265,8 +266,12 @@ class FL_Learning:
 
             for client_id in random_client_idx:
                 client = self.clients[client_id]
+
+                print(f'|--- Start training client {client_id}')
+
                 client_weight = client.reinforcement_learning()
                 client_weights.append(copy.deepcopy(client_weight))
+                print(f'|--- Finish training client {client_id}')
 
             global_weights = self.calculate_global_weights(client_weights,
                                                            n_trained_clients=len(random_client_idx))
