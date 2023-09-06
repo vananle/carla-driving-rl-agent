@@ -216,12 +216,12 @@ class FL_Learning:
             else:
                 log_mode = 'log'
 
-            self.clients.append(self.random_stage(stage_name=f'stage-random-client-{i}', episodes=1, timesteps=512,
-                                                  batch_size=64, gamma=0.9999, lambda_=0.999,
-                                                  save_every='end', update_frequency=1, policy_lr=1e-5, value_lr=1e-5,
-                                                  dynamics_lr=1e-5, clip_ratio=0.1, entropy_regularization=1.0,
-                                                  seed_regularization=True, seed=random.randint(0, 1000),
-                                                  polyak=1.0, aug_intensity=0.8, repeat_action=1,
+            self.clients.append(self.random_stage(stage_name=f'stage-random-client-{i}', episodes=2, timesteps=512,
+                                                  batch_size=64, gamma=0.9999, lambda_=0.999, save_every='end',
+                                                  update_frequency=1, policy_lr=3e-5, value_lr=3e-5, dynamics_lr=3e-4,
+                                                  clip_ratio=0.125, entropy_regularization=1.0,
+                                                  seed_regularization=True,
+                                                  seed=51, polyak=1.0, aug_intensity=0.0, repeat_action=1,
                                                   log_mode=log_mode))
 
         for idx, client in enumerate(self.clients):
