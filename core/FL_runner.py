@@ -230,6 +230,9 @@ class FL_Learning:
                                                   polyak=1.0, aug_intensity=0.8, repeat_action=1,
                                                   town=random.choice(towns)))
 
+        for client in self.clients:
+            client.init()
+
     def calculate_global_weights(self, client_weights, n_trained_clients):
         """
             Calculating the avg weights
