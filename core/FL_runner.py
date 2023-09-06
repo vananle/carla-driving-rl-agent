@@ -180,8 +180,8 @@ class FL_Learning:
 
         agent_dict = define_agent(
             class_=CARLAgent, **kwargs,
-            batch_size=batch_size, name=stage_name, traces_dir=None, load=False,
-            advantage_scale=2.0, load_full=True, seed=seed,
+            batch_size=batch_size, name=stage_name, traces_dir=None, load=False, seed=seed,
+            advantage_scale=2.0, load_full=True,
             policy_lr=policy_lr,
             value_lr=value_lr,
             dynamics_lr=dynamics_lr,
@@ -198,19 +198,10 @@ class FL_Learning:
             carla.WeatherParameters.WetSunset
         ]
 
-        if weather is None:
-            weather = light_weathers
-
-        n_regular = random.randint(30, 70)
-        n_dense = random.randint(80, 120)
-        traffic_spec = dict(no=None,
-                            regular=dict(vehicles=n_regular, pedestrians=n_regular),
-                            dense=dict(vehicles=n_dense, pedestrians=n_dense * 2))
-
-        env_dict = define_env(town=town, debug=True, throttle_as_desired_speed=True,
+        env_dict = define_env(town=None, debug=True, throttle_as_desired_speed=True,
                               image_shape=(90, 120, 3),
-                              random_weathers=weather,
-                              spawn=traffic_spec[traffic],
+                              random_weathers=light_weathers,
+                              spawn=dict(vehicles=50, pedestrians=50),
                               info_every=kwargs.get('repeat_action', 1),
                               disable_reverse=True, window_size=(900, 245))
 
