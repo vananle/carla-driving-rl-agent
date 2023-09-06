@@ -327,8 +327,9 @@ class CARLANetwork(Network):
             elif k == 'value':
                 value_weights = weights['value']
                 self.value.set_weights(value_weights)
-            elif k == 'dynamic':
+            elif k == 'dynamics':
                 dynamics_weights = weights['dynamics']
                 self.dynamics.set_weights(dynamics_weights)
             else:
+                print(k)
                 raise NotImplementedError
