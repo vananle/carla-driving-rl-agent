@@ -156,10 +156,10 @@ class CARLAgent(PPOAgent):
                 self.memory = self.get_memory()
 
                 if sample_seed:
-                    self.set_random_seed(seed=random.randint(a=0, b=2**32 - 1))
+                    self.set_random_seed(seed=random.randint(a=0, b=2 ** 32 - 1))
 
                 record_path = utils.makedir(os.path.join('record', self.env.current_town, name, str(trial)))
-                self.env.set_record_path(path=record_path) 
+                self.env.set_record_path(path=record_path)
 
                 preprocess_fn = self.preprocess()
                 self.reset()
@@ -578,9 +578,16 @@ class CARLAgent(PPOAgent):
 
         return augment_fn
 
+    def get_weights(self):
+        return self.network.get_weights()
+
     def load_weights(self):
         print('loading weights...')
         self.network.load_weights(full=self.load_full)
+
+    def update_weights(self, weights):
+        print('updating weights...')
+        self.network.update_weights(weights)
 
 
 class CARLAMemory(PPOMemory):

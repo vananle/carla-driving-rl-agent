@@ -208,6 +208,9 @@ class Agent:
     def save_weights(self):
         raise NotImplementedError
 
+    def get_weights(self):
+        raise NotImplementedError
+
     def on_episode_start(self):
         pass
 

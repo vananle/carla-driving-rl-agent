@@ -1,4 +1,3 @@
-
 import tensorflow as tf
 import tensorflow_probability as tfp
 
@@ -36,6 +35,9 @@ class Network:
         raise NotImplementedError
 
     def save_weights(self):
+        raise NotImplementedError
+
+    def update_weights(self, weights):
         raise NotImplementedError
 
     def summary(self):
@@ -260,6 +262,13 @@ class PPONetwork(Network):
     def save_weights(self):
         self.policy.save_weights(filepath=self.agent.weights_path['policy'])
         self.value.save_weights(filepath=self.agent.weights_path['value'])
+
+    def get_weights(self):
+        weights = {
+            'policy': self.policy.get_weights(),
+            'value': self.value.get_weights(),
+        }
+        return weights
 
     def update_old_policy(self, weights=None):
         if weights:

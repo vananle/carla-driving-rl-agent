@@ -598,6 +598,10 @@ class PPOAgent(Agent):
         print('loading weights...')
         self.network.load_weights()
 
+    def get_weights(self):
+        print('get weights...')
+        return self.network.get_weights()
+
     def save_config(self):
         print('save config')
         self.update_config(policy_lr=self.policy_lr.serialize(), value_lr=self.value_lr.serialize(),

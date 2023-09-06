@@ -13,7 +13,6 @@ from rl.networks import Network
 
 from core import architectures as nn
 
-
 TensorType = Union[tf.Tensor, List[tf.Tensor], Dict[str, tf.Tensor]]
 
 
@@ -47,7 +46,8 @@ def dynamics_layers(inputs: dict, time_horizon: int, **kwargs):
     image_out = GRU(units=args.get('image'), unroll=True, bias_initializer='glorot_uniform')(stack(image_out))
     road_out = GRU(units=args.get('road'), unroll=True, bias_initializer='glorot_uniform')(stack(road_out))
     vehicle_out = GRU(units=args.get('vehicle'), unroll=True, bias_initializer='glorot_uniform')(stack(vehicle_out))
-    navigation_out = GRU(units=args.get('navigation'), unroll=True, bias_initializer='glorot_uniform')(stack(navigation_out))
+    navigation_out = GRU(units=args.get('navigation'), unroll=True, bias_initializer='glorot_uniform')(
+        stack(navigation_out))
 
     # intermediate input for control and value networks
     dynamics_in = concatenate([image_out, road_out, vehicle_out, navigation_out],
@@ -308,3 +308,27 @@ class CARLANetwork(Network):
             self.dynamics.load_weights(filepath=self.agent.dynamics_path, by_name=False)
         else:
             self.dynamics.load_weights(filepath=self.agent.dynamics_path, by_name=False)
+
+    def get_weights(self):
+        weights = {
+            'policy': self.policy.get_weights(),
+            'value': self.value.get_weights(),
+            'dynamics': self.dynamics.get_weights()
+        }
+        return weights
+
+    def update_weights(self, weights):
+
+        for k, v in weights.items():
+            if k == 'policy':
+                policy_weights = weights['policy']
+                self.old_policy.set_weights(policy_weights)
+                self.policy.set_weights(policy_weights)
+            elif k == 'value':
+                value_weights = weights['value']
+                self.value.set_weights(value_weights)
+            elif k == 'dynamic':
+                dynamics_weights = weights['dynamics']
+                self.dynamics.set_weights(dynamics_weights)
+            else:
+                raise NotImplementedError
