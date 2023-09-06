@@ -15,6 +15,7 @@ from core import CARLAEnv, CARLAgent
 from typing import Union
 import copy
 
+
 class FL_Stage:
     """A Curriculum Learning FL_Stage"""
 
@@ -222,13 +223,18 @@ class FL_Learning:
         for i in range(self.n_clients):
             towns = ['Town01', 'Town02', 'Town03', 'Town04']
 
+            if i < 2:
+                log_mode = 'summary'
+            else:
+                log_mode = 'log'
+
             self.clients.append(self.random_stage(stage_name=f'stage-random-client-{i}', episodes=1, timesteps=512,
                                                   batch_size=64, gamma=0.9999, lambda_=0.999,
                                                   save_every='end', update_frequency=1, policy_lr=1e-5, value_lr=1e-5,
                                                   dynamics_lr=1e-5, clip_ratio=0.1, entropy_regularization=1.0,
                                                   seed_regularization=True, seed=random.randint(0, 1000),
                                                   polyak=1.0, aug_intensity=0.8, repeat_action=1,
-                                                  town=random.choice(towns)))
+                                                  town=random.choice(towns), log_mode=log_mode))
 
         for client in self.clients:
             client.init()
@@ -248,9 +254,9 @@ class FL_Learning:
         global_weights = {}
 
         for k, v in weights_sum.items():
-            avg_w= []
+            avg_w = []
             for w in v:
-                avg_w.append(w/n_trained_clients)
+                avg_w.append(w / n_trained_clients)
 
             global_weights[k] = avg_w
 
