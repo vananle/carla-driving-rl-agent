@@ -635,7 +635,7 @@ class Summary:
         with self.tf_summary_writer.as_default():
             for summary_name, data in self.stats.items():
 
-                if 'reward' in summary_name:
+                if 'rewards' in summary_name:
 
                     step = data['step']
                     values = data['list']
