@@ -241,17 +241,9 @@ class FL_Learning:
                 if k not in global_weights.keys():
                     global_weights[k] = [param / n_trained_clients for param in v]
                 else:
+                    assert len(v) == len(global_weights[k])
                     for idx, param in enumerate(v):
                         global_weights[k][idx] += param / n_trained_clients
-
-        # global_weights = {}
-        #
-        # for k, v in weights_sum.items():
-        #     avg_w = []
-        #     for w in v:
-        #         avg_w.append(w / n_trained_clients)
-        #
-        #     global_weights[k] = avg_w
 
         return global_weights
 
