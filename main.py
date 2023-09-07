@@ -9,7 +9,7 @@ import tensorflow as tf
 tf.test.is_gpu_available()
 
 from core.FL_runner import FL_Learning
-
+from core import learning
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 logger = tf.get_logger()
 logger.setLevel(logging.ERROR)
@@ -62,15 +62,15 @@ if __name__ == '__main__':
     # stage2.run2(epochs=100, epoch_offset=0)
     # exit()
     #
-    # # -- STAGE-3 --
-    # stage3 = learning.stage_s3(episodes=5, timesteps=512, batch_size=64, gamma=0.9999, lambda_=0.999, save_every='end',
-    #                            update_frequency=1, policy_lr=3e-5, value_lr=3e-5, dynamics_lr=3e-4,
-    #                            clip_ratio=0.125, entropy_regularization=1.0, seed_regularization=True,
-    #                            seed=51, polyak=1.0, aug_intensity=0.0, repeat_action=1)
-    #
-    # stage3.run2(epochs=100, epoch_offset=0)
-    # stage3.record(name='stage-s3', timesteps=5000, trials=1, seed=51, close=True)
-    # exit()
+    # -- STAGE-3 --
+    stage3 = learning.stage_s3(episodes=1, timesteps=512, batch_size=64, gamma=0.9999, lambda_=0.999, save_every='end',
+                               update_frequency=1, policy_lr=3e-5, value_lr=3e-5, dynamics_lr=3e-4,
+                               clip_ratio=0.125, entropy_regularization=1.0, seed_regularization=True,
+                               seed=51, polyak=1.0, aug_intensity=0.0, repeat_action=1)
+
+    stage3.run2(epochs=100, epoch_offset=0)
+    stage3.record(name='stage-s3', timesteps=5000, trials=1, seed=51, close=True)
+    exit()
 
     # FL training
     env_ports = [20000, 20002]
@@ -81,7 +81,7 @@ if __name__ == '__main__':
     fl_train = FL_Learning(n_clients=len(env_ports), n_train_round=100)
     fl_train.init_clients(env_ports=env_ports, towns=towns, timesteps=512)
     fl_train.train_clients()
-
+    exit()
     #
     # # -- STAGE-4 --
     # stage4 = learning.stage_s4(episodes=5, timesteps=512, batch_size=64, gamma=0.9999, lambda_=0.999, save_every='end',
