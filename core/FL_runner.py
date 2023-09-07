@@ -234,12 +234,16 @@ class FL_Learning:
             Calculating the avg weights
         """
         weights_sum = {}
-        for weights in client_weights:
+        for client_idx, weights in enumerate(client_weights):
+            print(weights.keys())
             for k, v in weights.items():
+                print(v)
                 if k not in weights_sum.keys():
                     weights_sum[k] = v
                 else:
                     weights_sum[k] += v
+
+                exit(1)
 
         global_weights = {}
 
@@ -258,6 +262,7 @@ class FL_Learning:
         global_weights = None
 
         for round_idx in range(self.n_train_round):
+            print(f'|--- Start training round {round_idx}')
 
             if self.n_clients <= 3:
                 random_client_idx = client_idx
