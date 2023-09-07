@@ -73,8 +73,8 @@ if __name__ == '__main__':
     # exit()
 
     # FL training
-    env_ports = [20000, 20002, 20004, 20006, 20008]
-    towns = ['Town01', 'Town02', 'Town03', 'Town04', 'Town05']
+    env_ports = [20000, 20002]
+    towns = ['Town01', 'Town02']
 
     assert len(env_ports) == len(towns)
 
