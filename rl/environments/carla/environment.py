@@ -59,6 +59,8 @@ class CARLABaseEnvironment(gym.Env):
         super().__init__()
         env_utils.init_pygame()
 
+        print(f'Env: address: {address}, port {port}')
+
         self.timeout = timeout
         self.client = env_utils.get_client(address, port, self.timeout)
         self.world: carla.World = self.client.get_world()

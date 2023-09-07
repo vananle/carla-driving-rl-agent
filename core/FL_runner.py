@@ -34,7 +34,6 @@ class FL_Stage:
 
         # Environment
         self.env_class = environment.pop('class', environment.pop('class_'))
-        print('env_class', self.env_class)
         self.env_args = environment
         print(self.env_args)
         self.env = None
@@ -168,7 +167,7 @@ class FL_Learning:
         self.clients = []  # list of stages or clients
 
     def random_stage(self, episodes: int, timesteps: int, batch_size: int, save_every=None, seed=42,
-                     stage_name='stage-random', load=False, env_port=2000, **kwargs):
+                     stage_name='stage-random', load=False, env_port=2000, town='Town01', **kwargs):
         """random-stage: town with dense traffic (random vehicles and random pedestrians) + random light weather
         + data-aug"""
         policy_lr = kwargs.pop('policy_lr', 3e-4)
@@ -197,7 +196,7 @@ class FL_Learning:
             carla.WeatherParameters.WetSunset
         ]
 
-        env_dict = define_env(town=None, debug=True, throttle_as_desired_speed=True,
+        env_dict = define_env(town=town, debug=True, throttle_as_desired_speed=True,
                               image_shape=(90, 120, 3),
                               random_weathers=light_weathers,
                               spawn=dict(vehicles=50, pedestrians=50),
@@ -210,7 +209,7 @@ class FL_Learning:
                             agent=dict(episodes=episodes, timesteps=timesteps, render_every=False, close=False,
                                        save_every=save_every)))
 
-    def init_clients(self, env_ports, timesteps=512):
+    def init_clients(self, env_ports, towns, timesteps=512):
         assert len(env_ports) == self.n_clients
         for i in range(self.n_clients):
             if i < 2:
@@ -225,7 +224,8 @@ class FL_Learning:
                                   clip_ratio=0.125, entropy_regularization=1.0,
                                   seed_regularization=True,
                                   seed=i, polyak=1.0, aug_intensity=0.0, repeat_action=1,
-                                  log_mode=log_mode, load=False, env_port=env_ports[i]))
+                                  log_mode=log_mode, load=False, env_port=env_ports[i],
+                                  town=towns[i]))
 
         for idx, client in enumerate(self.clients):
             print(f'|--- Init client {idx}')
