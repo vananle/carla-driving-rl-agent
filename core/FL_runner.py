@@ -228,10 +228,7 @@ class FL_Learning:
 
     def init_clients(self, env_ports, towns, timesteps=512):
         for i in range(self.n_clients):
-            if i < 2:
-                log_mode = 'summary'
-            else:
-                log_mode = 'log'
+            log_mode = 'summary'
 
             self.clients.append(
                 self.random_stage(stage_name=f'stage-random-client-{i}', episodes=1, timesteps=timesteps,
