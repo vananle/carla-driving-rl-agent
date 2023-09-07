@@ -153,9 +153,9 @@ def define_agent(class_=CARLAgent, batch_size=128, consider_obs_every=4, load=Fa
 
 
 def define_env(image_shape=(90, 120, 3), render=True, town: Union[None, str] = 'Town01', window_size=(1080, 270),
-               debug=False, **kwargs) -> dict:
+               debug=False, port=2000, **kwargs) -> dict:
     return dict(class_=CARLAEnv, debug=debug, window_size=window_size, render=render, town=town,
-                image_shape=image_shape, **kwargs)
+                image_shape=image_shape, port=port, **kwargs)
 
 
 class FL_Learning:
@@ -168,7 +168,7 @@ class FL_Learning:
         self.clients = []  # list of stages or clients
 
     def random_stage(self, episodes: int, timesteps: int, batch_size: int, save_every=None, seed=42,
-                     stage_name='stage-random', load=False, **kwargs):
+                     stage_name='stage-random', load=False, env_port=2000, **kwargs):
         """random-stage: town with dense traffic (random vehicles and random pedestrians) + random light weather
         + data-aug"""
         policy_lr = kwargs.pop('policy_lr', 3e-4)
@@ -202,32 +202,34 @@ class FL_Learning:
                               random_weathers=light_weathers,
                               spawn=dict(vehicles=50, pedestrians=50),
                               info_every=kwargs.get('repeat_action', 1),
-                              disable_reverse=True, window_size=(900, 245))
+                              disable_reverse=True, window_size=(900, 245),
+                              port=env_port)
 
         return FL_Stage(agent=agent_dict, environment=env_dict,
                         learning=dict(
                             agent=dict(episodes=episodes, timesteps=timesteps, render_every=False, close=False,
                                        save_every=save_every)))
 
-    def init_clients(self, timesteps=512):
-
+    def init_clients(self, env_ports, timesteps=512):
+        assert len(env_ports) == self.n_clients
         for i in range(self.n_clients):
             if i < 2:
                 log_mode = 'summary'
             else:
                 log_mode = 'log'
 
-            self.clients.append(self.random_stage(stage_name=f'stage-random-client-{i}', episodes=1, timesteps=timesteps,
-                                                  batch_size=64, gamma=0.9999, lambda_=0.999, save_every='end',
-                                                  update_frequency=1, policy_lr=3e-5, value_lr=3e-5, dynamics_lr=3e-4,
-                                                  clip_ratio=0.125, entropy_regularization=1.0,
-                                                  seed_regularization=True,
-                                                  seed=51, polyak=1.0, aug_intensity=0.0, repeat_action=1,
-                                                  log_mode=log_mode, load=False))
+            self.clients.append(
+                self.random_stage(stage_name=f'stage-random-client-{i}', episodes=1, timesteps=timesteps,
+                                  batch_size=64, gamma=0.9999, lambda_=0.999, save_every='end',
+                                  update_frequency=1, policy_lr=3e-5, value_lr=3e-5, dynamics_lr=3e-4,
+                                  clip_ratio=0.125, entropy_regularization=1.0,
+                                  seed_regularization=True,
+                                  seed=i, polyak=1.0, aug_intensity=0.0, repeat_action=1,
+                                  log_mode=log_mode, load=False, env_port=env_ports[i]))
 
-        # for idx, client in enumerate(self.clients):
-        #     print(f'|--- Init client {idx}')
-        #     client.init()
+        for idx, client in enumerate(self.clients):
+            print(f'|--- Init client {idx}')
+            client.init()
 
     def calculate_global_weights(self, client_weights, n_trained_clients):
         """
@@ -274,9 +276,9 @@ class FL_Learning:
                 client = self.clients[client_id]
 
                 print(f'|--- Start training client {client_id}')
-                client.init()
-                if round_idx != 0 and global_weights is not None:
-                    client.update_weights(global_weights)
+                # client.init()
+                # if round_idx != 0 and global_weights is not None:
+                #     client.update_weights(global_weights)
 
                 client_weight = client.reinforcement_learning()
                 client_weights.append(copy.deepcopy(client_weight))
@@ -286,6 +288,6 @@ class FL_Learning:
             global_weights = self.calculate_global_weights(client_weights,
                                                            n_trained_clients=len(random_client_idx))
             print(global_weights)
-            # for client_id in client_idx:
-            #     client = self.clients[client_id]
-            #     client.update_weights(global_weights)
+            for client_id in client_idx:
+                client = self.clients[client_id]
+                client.update_weights(global_weights)
