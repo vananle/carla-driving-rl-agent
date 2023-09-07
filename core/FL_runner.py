@@ -287,6 +287,7 @@ class FL_Learning:
 
             global_weights = self.calculate_global_weights(client_weights,
                                                            n_trained_clients=len(random_client_idx))
+            print(global_weights.keys)
             for client_id in client_idx:
                 client = self.clients[client_id]
                 client.update_weights(global_weights)
