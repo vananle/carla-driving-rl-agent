@@ -189,6 +189,7 @@ def spawn_actor(world: carla.World, blueprint: carla.ActorBlueprint, spawn_point
     while actor is None:
         actor = world.try_spawn_actor(blueprint, spawn_point, attach_to, attachment_type)
         if n_try >= 5:
+            n_try+=1
             break
 
     if actor is None:
