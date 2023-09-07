@@ -237,7 +237,8 @@ class FL_Learning:
         for client_idx, weights in enumerate(client_weights):
             print(weights.keys())
             for k, v in weights.items():
-                print(v)
+                if isinstance(v, dict):
+                    print(v.keys())
                 if k not in weights_sum.keys():
                     weights_sum[k] = v
                 else:
