@@ -168,7 +168,7 @@ class FL_Learning:
         self.clients = []  # list of stages or clients
 
     def random_stage(self, episodes: int, timesteps: int, batch_size: int, save_every=None, seed=42,
-                     stage_name='stage-random', **kwargs):
+                     stage_name='stage-random', load=False, **kwargs):
         """random-stage: town with dense traffic (random vehicles and random pedestrians) + random light weather
         + data-aug"""
         policy_lr = kwargs.pop('policy_lr', 3e-4)
@@ -179,7 +179,7 @@ class FL_Learning:
 
         agent_dict = define_agent(
             class_=CARLAgent, **kwargs,
-            batch_size=batch_size, name=stage_name, traces_dir=None, load=False, seed=seed,
+            batch_size=batch_size, name=stage_name, traces_dir=None, load=load, seed=seed,
             advantage_scale=2.0, load_full=True,
             policy_lr=policy_lr,
             value_lr=value_lr,
@@ -209,7 +209,7 @@ class FL_Learning:
                             agent=dict(episodes=episodes, timesteps=timesteps, render_every=False, close=False,
                                        save_every=save_every)))
 
-    def init_clients(self):
+    def init_clients(self, timesteps=512):
 
         for i in range(self.n_clients):
             if i < 2:
@@ -217,13 +217,13 @@ class FL_Learning:
             else:
                 log_mode = 'log'
 
-            self.clients.append(self.random_stage(stage_name=f'stage-random-client-{i}', episodes=1, timesteps=512,
+            self.clients.append(self.random_stage(stage_name=f'stage-random-client-{i}', episodes=1, timesteps=timesteps,
                                                   batch_size=64, gamma=0.9999, lambda_=0.999, save_every='end',
                                                   update_frequency=1, policy_lr=3e-5, value_lr=3e-5, dynamics_lr=3e-4,
                                                   clip_ratio=0.125, entropy_regularization=1.0,
                                                   seed_regularization=True,
                                                   seed=51, polyak=1.0, aug_intensity=0.0, repeat_action=1,
-                                                  log_mode=log_mode))
+                                                  log_mode=log_mode, load=False))
 
         # for idx, client in enumerate(self.clients):
         #     print(f'|--- Init client {idx}')
