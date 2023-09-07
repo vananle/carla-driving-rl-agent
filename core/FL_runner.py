@@ -252,14 +252,9 @@ class FL_Learning:
         for round_idx in range(self.n_train_round):
             print(f'|--- Start training round {round_idx}')
 
-            if self.n_clients <= 3:
-                random_client_idx = client_idx
-            else:
-                random_client_idx = np.random.choice(client_idx, size=int(0.6 * self.n_clients), replace=False)
-
             client_weights = []
 
-            for client_id in random_client_idx:
+            for client_id in client_idx:
                 client = self.clients[client_id]
 
                 print(f'|--- Start training client {client_id}')
@@ -268,7 +263,7 @@ class FL_Learning:
                 print(f'|--- Finish training client {client_id}')
 
             global_weights = calculate_global_weights(client_weights,
-                                                      n_trained_clients=len(random_client_idx))
+                                                      n_trained_clients=len(client_idx))
             for client_id in client_idx:
                 client = self.clients[client_id]
                 client.update_weights(global_weights)

@@ -67,6 +67,7 @@ def define_env(image_shape=(90, 120, 3), render=True, town: Union[None, str] = '
 
 class Stage:
     """A Curriculum Learning stage"""
+
     def __init__(self, agent: dict, environment: dict, learning: dict, representation: dict = None,
                  collect: dict = None, imitation: dict = None, name='Stage'):
         assert isinstance(agent, dict)
@@ -310,7 +311,8 @@ def explore_traces(traces_dir: str, amount=64, seed=None):
 # -- Curriculum (stages definition)
 # -------------------------------------------------------------------------------------------------
 
-def stage_s1(episodes: int, timesteps: int, batch_size: int, save_every=None, seed=42, stage_name='stage-s1', **kwargs):
+def stage_s1(episodes: int, timesteps: int, batch_size: int, save_every=None, seed=42, stage_name='stage-s1',
+             port=20000, **kwargs):
     """Stage-1: origins (n=10) fixed by seed. Town-3, reverse gear disabled
                 No dynamic objects."""
     policy_lr = kwargs.pop('policy_lr', 3e-4)
@@ -329,7 +331,7 @@ def stage_s1(episodes: int, timesteps: int, batch_size: int, save_every=None, se
         entropy_regularization=entropy, shuffle_batches=False, drop_batch_remainder=True, shuffle=True,
         clip_ratio=clip_ratio, consider_obs_every=1, clip_norm=1.0, update_dynamics=True)
 
-    env_dict = define_env(town=None, debug=True,
+    env_dict = define_env(port=port, town=None, debug=True,
                           image_shape=(90, 120, 3),
                           path=dict(origin=sample_origins(amount=10, seed=seed)),
                           throttle_as_desired_speed=True,
@@ -341,7 +343,8 @@ def stage_s1(episodes: int, timesteps: int, batch_size: int, save_every=None, se
                                           save_every=save_every)))
 
 
-def stage_s2(episodes: int, timesteps: int, batch_size: int, save_every=None, seed=42, stage_name='stage-s2', **kwargs):
+def stage_s2(episodes: int, timesteps: int, batch_size: int, save_every=None, seed=42, stage_name='stage-s2',
+             port=20000, **kwargs):
     """Stage-2: 50 random origins + 50 pedestrians"""
     policy_lr = kwargs.pop('policy_lr', 3e-4)
     value_lr = kwargs.pop('value_lr', 3e-4)
@@ -359,7 +362,7 @@ def stage_s2(episodes: int, timesteps: int, batch_size: int, save_every=None, se
         entropy_regularization=entropy, shuffle_batches=False, drop_batch_remainder=True, shuffle=True,
         clip_ratio=clip_ratio, consider_obs_every=1, clip_norm=1.0, update_dynamics=True)
 
-    env_dict = define_env(town=None, debug=True, throttle_as_desired_speed=True,
+    env_dict = define_env(port=port, town=None, debug=True, throttle_as_desired_speed=True,
                           image_shape=(90, 120, 3),
                           path=dict(origin=sample_origins(amount=50, seed=seed)),
                           spawn=dict(vehicles=0, pedestrians=50),
@@ -372,7 +375,8 @@ def stage_s2(episodes: int, timesteps: int, batch_size: int, save_every=None, se
                                           save_every=save_every)))
 
 
-def stage_s3(episodes: int, timesteps: int, batch_size: int, save_every=None, seed=42, stage_name='stage-s3', **kwargs):
+def stage_s3(episodes: int, timesteps: int, batch_size: int, save_every=None, seed=42, stage_name='stage-s3',
+             town='Town01', port=20000, **kwargs):
     """Stage-3: random origin with 50 vehicles and 50 pedestrians + random light weather"""
     policy_lr = kwargs.pop('policy_lr', 3e-4)
     value_lr = kwargs.pop('value_lr', 3e-4)
@@ -400,7 +404,7 @@ def stage_s3(episodes: int, timesteps: int, batch_size: int, save_every=None, se
         carla.WeatherParameters.WetSunset
     ]
 
-    env_dict = define_env(town=None, debug=True, throttle_as_desired_speed=True,
+    env_dict = define_env(port=port, town=town, debug=True, throttle_as_desired_speed=True,
                           image_shape=(90, 120, 3),
                           random_weathers=light_weathers,
                           spawn=dict(vehicles=50, pedestrians=50),
@@ -413,7 +417,7 @@ def stage_s3(episodes: int, timesteps: int, batch_size: int, save_every=None, se
 
 
 def stage_s4(episodes: int, timesteps: int, batch_size: int, towns=None, save_every=None, seed=42,
-             stage_name='stage-s4', **kwargs):
+             stage_name='stage-s4', port=20000, **kwargs):
     """Stage-4: town with regular traffic (50 vehicles and 50 pedestrians) + random light weather + data-aug"""
     policy_lr = kwargs.pop('policy_lr', 3e-4)
     value_lr = kwargs.pop('value_lr', 3e-4)
@@ -441,7 +445,7 @@ def stage_s4(episodes: int, timesteps: int, batch_size: int, towns=None, save_ev
         carla.WeatherParameters.WetSunset
     ]
 
-    env_dict = define_env(town=None, debug=True, throttle_as_desired_speed=True,
+    env_dict = define_env(port=port, town=None, debug=True, throttle_as_desired_speed=True,
                           image_shape=(90, 120, 3), random_towns=towns,
                           random_weathers=light_weathers,
                           spawn=dict(vehicles=50, pedestrians=50),
@@ -454,7 +458,7 @@ def stage_s4(episodes: int, timesteps: int, batch_size: int, towns=None, save_ev
 
 
 def stage_s5(episodes: int, timesteps: int, batch_size: int, town: str, save_every=None, seed=42, stage_name='stage-s5',
-             weather=None, traffic='dense', **kwargs):
+             weather=None, traffic='dense', port=20000, **kwargs):
     """Stage-5: town with dense traffic (100 vehicles and 200 pedestrians) + random light weather + data-aug"""
     policy_lr = kwargs.pop('policy_lr', 3e-4)
     value_lr = kwargs.pop('value_lr', 3e-4)
@@ -489,7 +493,7 @@ def stage_s5(episodes: int, timesteps: int, batch_size: int, town: str, save_eve
                         regular=dict(vehicles=50, pedestrians=50),
                         dense=dict(vehicles=100, pedestrians=200))
 
-    env_dict = define_env(town=town, debug=True, throttle_as_desired_speed=True,
+    env_dict = define_env(port=port, town=town, debug=True, throttle_as_desired_speed=True,
                           image_shape=(90, 120, 3),
                           random_weathers=weather,
                           spawn=traffic_spec[traffic],
