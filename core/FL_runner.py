@@ -235,25 +235,23 @@ class FL_Learning:
         """
             Calculating the avg weights
         """
-        weights_sum = {}
+        global_weights = {}
         for client_idx, weights in enumerate(client_weights):
             print(weights.keys())
             for k, v in weights.items():
-                if isinstance(v, dict):
-                    print(v.keys())
-                if k not in weights_sum.keys():
-                    weights_sum[k] = v
+                print(type(v))
+                if k not in global_weights.keys():
+                    global_weights[k] = v/n_trained_clients
                 else:
-                    weights_sum[k] += v
-
-        global_weights = {}
-
-        for k, v in weights_sum.items():
-            avg_w = []
-            for w in v:
-                avg_w.append(w / n_trained_clients)
-
-            global_weights[k] = avg_w
+                    global_weights[k] += v/n_trained_clients
+        # global_weights = {}
+        #
+        # for k, v in weights_sum.items():
+        #     avg_w = []
+        #     for w in v:
+        #         avg_w.append(w / n_trained_clients)
+        #
+        #     global_weights[k] = avg_w
 
         return global_weights
 
@@ -282,11 +280,12 @@ class FL_Learning:
 
                 client_weight = client.reinforcement_learning()
                 client_weights.append(copy.deepcopy(client_weight))
+                print(type(client_weight['policy']))
                 print(f'|--- Finish training client {client_id}')
 
             global_weights = self.calculate_global_weights(client_weights,
                                                            n_trained_clients=len(random_client_idx))
-            print(global_weights.keys)
+            print(global_weights.keys())
             for client_id in client_idx:
                 client = self.clients[client_id]
                 client.update_weights(global_weights)
