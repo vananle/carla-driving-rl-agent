@@ -73,8 +73,9 @@ if __name__ == '__main__':
     # exit()
 
     # FL training
-    fl_train = FL_Learning(n_clients=3, n_train_round=10)
-    fl_train.init_clients(timesteps=50)
+    env_ports = [20000, 20002, 20004]
+    fl_train = FL_Learning(n_clients=len(env_ports), n_train_round=10)
+    fl_train.init_clients(env_ports=env_ports, timesteps=50)
     fl_train.train_clients()
 
     #
