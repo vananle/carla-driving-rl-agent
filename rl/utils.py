@@ -634,23 +634,26 @@ class Summary:
 
         with self.tf_summary_writer.as_default():
             for summary_name, data in self.stats.items():
-                step = data['step']
-                values = data['list']
 
-                if 'weight-' in summary_name or 'bias-' in summary_name:
-                    tf.summary.histogram(name=summary_name, data=values, step=step)
+                if 'reward' in summary_name:
 
-                elif 'image_' in summary_name:
-                    tf.summary.image(name=summary_name, data=tf.concat(values, axis=0), step=step)
+                    step = data['step']
+                    values = data['list']
 
-                # elif tf.is_tensor(data) and num_dims(data) == 4:
-                #     # array of images
-                #     tf.summary.image(name=summary_name, data=data, step=step)
-                else:
-                    for i, value in enumerate(values):
-                        # TODO: 'np.mean' is a temporary fix...
-                        tf.summary.scalar(name=summary_name, data=np.mean(value), step=step + i)
-                        # tf.summary.scalar(name=summary_name, data=tf.reduce_mean(value), step=step + i)
+                    if 'weight-' in summary_name or 'bias-' in summary_name:
+                        tf.summary.histogram(name=summary_name, data=values, step=step)
+
+                    elif 'image_' in summary_name:
+                        tf.summary.image(name=summary_name, data=tf.concat(values, axis=0), step=step)
+
+                    # elif tf.is_tensor(data) and num_dims(data) == 4:
+                    #     # array of images
+                    #     tf.summary.image(name=summary_name, data=data, step=step)
+                    else:
+                        for i, value in enumerate(values):
+                            # TODO: 'np.mean' is a temporary fix...
+                            tf.summary.scalar(name=summary_name, data=np.mean(value), step=step + i)
+                            # tf.summary.scalar(name=summary_name, data=tf.reduce_mean(value), step=step + i)
 
                 # clear value_list, update step
                 self.stats[summary_name]['step'] += len(values)
