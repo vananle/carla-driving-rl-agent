@@ -157,6 +157,23 @@ def define_env(image_shape=(90, 120, 3), render=True, town: Union[None, str] = '
                 image_shape=image_shape, port=port, **kwargs)
 
 
+def calculate_global_weights(client_weights, n_trained_clients):
+    """
+        Calculating the avg weights
+    """
+    global_weights = {}
+    for client_idx, weights in enumerate(client_weights):
+        for k, v in weights.items():
+            if k not in global_weights.keys():
+                global_weights[k] = [param / n_trained_clients for param in v]
+            else:
+                assert len(v) == len(global_weights[k])
+                for idx, param in enumerate(v):
+                    global_weights[k][idx] += param / n_trained_clients
+
+    return global_weights
+
+
 class FL_Learning:
     def __init__(self, n_clients, n_train_round):
 
@@ -210,7 +227,6 @@ class FL_Learning:
                                        save_every=save_every)))
 
     def init_clients(self, env_ports, towns, timesteps=512):
-        assert len(env_ports) == self.n_clients
         for i in range(self.n_clients):
             if i < 2:
                 log_mode = 'summary'
@@ -231,22 +247,6 @@ class FL_Learning:
             print(f'|--- Init client {idx}')
             client.init()
 
-    def calculate_global_weights(self, client_weights, n_trained_clients):
-        """
-            Calculating the avg weights
-        """
-        global_weights = {}
-        for client_idx, weights in enumerate(client_weights):
-            for k, v in weights.items():
-                if k not in global_weights.keys():
-                    global_weights[k] = [param / n_trained_clients for param in v]
-                else:
-                    assert len(v) == len(global_weights[k])
-                    for idx, param in enumerate(v):
-                        global_weights[k][idx] += param / n_trained_clients
-
-        return global_weights
-
     def train_clients(self):
         client_idx = np.arange(self.n_clients)
 
@@ -266,17 +266,12 @@ class FL_Learning:
                 client = self.clients[client_id]
 
                 print(f'|--- Start training client {client_id}')
-                # client.init()
-                # if round_idx != 0 and global_weights is not None:
-                #     client.update_weights(global_weights)
-
                 client_weight = client.reinforcement_learning()
                 client_weights.append(copy.deepcopy(client_weight))
                 print(f'|--- Finish training client {client_id}')
 
-            global_weights = self.calculate_global_weights(client_weights,
-                                                           n_trained_clients=len(random_client_idx))
-            print(global_weights.keys())
+            global_weights = calculate_global_weights(client_weights,
+                                                      n_trained_clients=len(random_client_idx))
             for client_id in client_idx:
                 client = self.clients[client_id]
                 client.update_weights(global_weights)
