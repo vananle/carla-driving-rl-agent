@@ -282,7 +282,6 @@ class FL_Learning:
 
                 client_weight = client.reinforcement_learning()
                 client_weights.append(copy.deepcopy(client_weight))
-                client.cleanup()
                 print(f'|--- Finish training client {client_id}')
 
             global_weights = self.calculate_global_weights(client_weights,
