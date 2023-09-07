@@ -237,13 +237,13 @@ class FL_Learning:
         """
         global_weights = {}
         for client_idx, weights in enumerate(client_weights):
-            print(weights.keys())
             for k, v in weights.items():
-                print(type(v))
                 if k not in global_weights.keys():
-                    global_weights[k] = v/n_trained_clients
+                    global_weights[k] = [param / n_trained_clients for param in v]
                 else:
-                    global_weights[k] += v/n_trained_clients
+                    for idx, param in enumerate(v):
+                        global_weights[k][idx] += param / n_trained_clients
+
         # global_weights = {}
         #
         # for k, v in weights_sum.items():
@@ -280,8 +280,6 @@ class FL_Learning:
 
                 client_weight = client.reinforcement_learning()
                 client_weights.append(copy.deepcopy(client_weight))
-                print(type(client_weight['policy']))
-                exit(1)
                 print(f'|--- Finish training client {client_id}')
 
             global_weights = self.calculate_global_weights(client_weights,
