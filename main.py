@@ -73,11 +73,13 @@ if __name__ == '__main__':
     # exit()
 
     # FL training
-    env_ports = [20000, 20002, 20004]
-    towns = ['Town01', 'Town02', 'Town03']
+    env_ports = [20000, 20002, 20004, 20006, 20008]
+    towns = ['Town01', 'Town02', 'Town03', 'Town04', 'Town05']
 
-    fl_train = FL_Learning(n_clients=len(env_ports), n_train_round=1)
-    fl_train.init_clients(env_ports=env_ports, towns=towns, timesteps=50)
+    assert len(env_ports) == len(towns)
+
+    fl_train = FL_Learning(n_clients=len(env_ports), n_train_round=100)
+    fl_train.init_clients(env_ports=env_ports, towns=towns, timesteps=512)
     fl_train.train_clients()
 
     #
