@@ -12,6 +12,7 @@ def get_args():
     parser.add_argument('--timesteps', type=int, help='number of timesteps per episode (512)', default=512)
     parser.add_argument('--n_train_round', type=int, help='number of training round (100)', default=100)
     parser.add_argument('--env_port', type=int, help='env_port (20000)', default=-1)
+    parser.add_argument('--traffic_manager_port', type=int, help='traffic_manager_port (8000)', default=8000)
 
     args = parser.parse_args()
 

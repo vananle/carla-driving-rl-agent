@@ -42,7 +42,7 @@ class CARLABaseEnvironment(gym.Env):
     def __init__(self, address='localhost', port=2000, timeout=5.0, image_shape=(150, 200, 3), window_size=(800, 600),
                  vehicle_filter='vehicle.tesla.model3', fps=30.0, render=True, debug=True, spawn: dict = None,
                  ignore_traffic_light=True, path: dict = None, town: str = None,
-                 weather=carla.WeatherParameters.ClearNoon, skip_frames=30):
+                 weather=carla.WeatherParameters.ClearNoon, skip_frames=30, traffic_manager_port=8000):
         """Arguments:
             - path: dict =
                 - origin: dict(carla.Transform or 'point' or 'points', 'type': [fixed, route, map] or [random,
@@ -67,6 +67,7 @@ class CARLABaseEnvironment(gym.Env):
         self.synchronous_context = None
         self.sync_mode_enabled = False
         self.num_frames_to_skip = skip_frames
+        self.traffic_manager_port = traffic_manager_port
 
         # Time
         self.initial_timestamp: carla.Timestamp = None
@@ -282,7 +283,7 @@ class CARLABaseEnvironment(gym.Env):
 
     def spawn_actors(self, spawn_dict: dict, hybrid=True, safe=True):
         """Instantiate vehicles and pedestrians in the current world"""
-        traffic_manager = self.client.get_trafficmanager()
+        traffic_manager = self.client.get_trafficmanager(port=self.traffic_manager_port)
         traffic_manager.set_synchronous_mode(True)
 
         if spawn_dict.get('hybrid', hybrid):
@@ -293,12 +294,14 @@ class CARLABaseEnvironment(gym.Env):
                                               safe=safe)
         # Spawn stuff
         self.vehicles = env_utils.spawn_vehicles(amount=spawn_dict.get('vehicles', 0), blueprints=blueprints[0],
-                                                 client=self.client, spawn_points=self.map.get_spawn_points())
+                                                 client=self.client, spawn_points=self.map.get_spawn_points(),
+                                                 traffic_manager_port=self.traffic_manager_port)
 
         self.walkers_ids = env_utils.spawn_pedestrians(amount=spawn_dict.get('pedestrians', 0),
                                                        blueprints=blueprints[1], client=self.client,
                                                        running=spawn_dict.get('running', 0.0),
-                                                       crossing=spawn_dict.get('crossing', 0.0))
+                                                       crossing=spawn_dict.get('crossing', 0.0),
+                                                       traffic_manager_port=self.traffic_manager_port)
 
         traffic_manager.global_percentage_speed_difference(30.0)
 

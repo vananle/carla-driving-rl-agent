@@ -57,7 +57,7 @@ if __name__ == '__main__':
     scenario_name = args.scenario_name
     n_train_round = args.n_train_round
     env_port = args.env_port
-
+    traffic_manager_port = args.traffic_manager_port
     if scenario_name != 'fl' and env_port < 0:
         raise ValueError('Must specify the port of carla server!')
 
@@ -70,7 +70,7 @@ if __name__ == '__main__':
                                    update_frequency=1, policy_lr=3e-4, value_lr=3e-4, dynamics_lr=3e-4,
                                    clip_ratio=0.2, entropy_regularization=1.0, seed_regularization=True, load=False,
                                    seed=51, polyak=1.0, aug_intensity=0.0, repeat_action=1, load_full=False,
-                                   port=env_port)
+                                   port=env_port, traffic_manager_port=traffic_manager_port)
 
         stage1.run2(epochs=n_train_round, epoch_offset=0)
     elif scenario_name == 's2':
@@ -81,19 +81,19 @@ if __name__ == '__main__':
                                    update_frequency=1, policy_lr=3e-5, value_lr=3e-5, dynamics_lr=3e-4,
                                    clip_ratio=0.15, entropy_regularization=2.0, seed_regularization=True,
                                    seed=51, polyak=1.0, aug_intensity=0.0, repeat_action=1,
-                                   port=env_port)
+                                   port=env_port, traffic_manager_port=traffic_manager_port)
 
         stage2.run2(epochs=n_train_round, epoch_offset=0)
     elif scenario_name == 's3':
 
         # -- STAGE-3 --
 
-        stage3 = learning.stage_s3(episodes=1, timesteps=timesteps, batch_size=64, gamma=0.9999, lambda_=0.999,
+        stage3 = learning.stage_s3(episodes=1, timesteps=timesteps, batch_size=258, gamma=0.9999, lambda_=0.999,
                                    save_every='end',
                                    update_frequency=1, policy_lr=3e-5, value_lr=3e-5, dynamics_lr=3e-4,
                                    clip_ratio=0.125, entropy_regularization=1.0, seed_regularization=True,
                                    seed=51, polyak=1.0, aug_intensity=0.0, repeat_action=1, town='Town01',
-                                   port=env_port)
+                                   port=env_port, traffic_manager_port=traffic_manager_port)
 
         stage3.run2(epochs=n_train_round, epoch_offset=0)
         stage3.record(name='stage-s3', timesteps=5000, trials=1, seed=51, close=True)
@@ -105,7 +105,7 @@ if __name__ == '__main__':
                                    update_frequency=1, policy_lr=1e-5, value_lr=1e-5, dynamics_lr=3e-5,
                                    clip_ratio=0.1, entropy_regularization=1.0, seed_regularization=True,
                                    seed=51, polyak=1.0, aug_intensity=1.0, repeat_action=1,
-                                   port=env_port)
+                                   port=env_port, traffic_manager_port=traffic_manager_port)
 
         stage4.run2(epochs=n_train_round, epoch_offset=0)
     elif scenario_name == 's5':
@@ -115,7 +115,7 @@ if __name__ == '__main__':
                                    update_frequency=1, policy_lr=1e-5, value_lr=1e-5, dynamics_lr=1e-5,
                                    clip_ratio=0.1, entropy_regularization=1.0, seed_regularization=True,
                                    seed=51, polyak=1.0, aug_intensity=0.8, repeat_action=1, town='Town03',
-                                   port=env_port)
+                                   port=env_port, traffic_manager_port=traffic_manager_port)
 
         stage5.run2(epochs=n_train_round, epoch_offset=0)
 

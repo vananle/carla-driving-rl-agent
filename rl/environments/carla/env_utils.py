@@ -192,11 +192,16 @@ def spawn_actor(world: carla.World, blueprint: carla.ActorBlueprint, spawn_point
     return actor
 
 
-def spawn_vehicles(amount: int, blueprints: list, client: carla.Client, spawn_points: List[carla.Transform]) -> list:
+def spawn_vehicles(amount: int, blueprints: list, client: carla.Client, spawn_points: List[carla.Transform],
+                   traffic_manager_port=None) -> list:
     """Spawns vehicles, based on spawn_npc.py"""
     assert amount >= 0
 
-    traffic_manager = client.get_trafficmanager()
+    if traffic_manager_port is None:
+        traffic_manager = client.get_trafficmanager()
+    else:
+        traffic_manager = client.get_trafficmanager(port=traffic_manager_port)
+
     batch = []
     vehicles = []
     random.shuffle(spawn_points)
@@ -230,7 +235,8 @@ def spawn_vehicles(amount: int, blueprints: list, client: carla.Client, spawn_po
     return vehicles
 
 
-def spawn_pedestrians(amount: int, blueprints: list, client: carla.Client, running=0.0, crossing=0.0) -> list:
+def spawn_pedestrians(amount: int, blueprints: list, client: carla.Client, running=0.0, crossing=0.0,
+                      traffic_manager_port=None) -> list:
     """Spawns pedestrians, based on spawn_npc.py"""
     assert amount >= 0
     assert 0.0 <= running <= 1.0
@@ -239,7 +245,11 @@ def spawn_pedestrians(amount: int, blueprints: list, client: carla.Client, runni
     percentage_pedestrians_running = running  # how many pedestrians will run
     percentage_pedestrians_crossing = crossing  # how many pedestrians will walk through the road
 
-    traffic_manager = client.get_trafficmanager()
+    if traffic_manager_port is None:
+        traffic_manager = client.get_trafficmanager()
+    else:
+        traffic_manager = client.get_trafficmanager(port=traffic_manager_port)
+
     world = client.get_world()
 
     # 1. Spawn point with random location (for navigation purpose)

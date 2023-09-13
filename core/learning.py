@@ -16,13 +16,13 @@ from typing import Union
 # -- Utils
 # -------------------------------------------------------------------------------------------------
 
-def sample_origins(amount=1, seed=None):
+def sample_origins(amount=1, seed=None, port=20000):
     assert amount > 0
 
     if isinstance(seed, int):
         random.seed(seed)
 
-    client = carla_utils.get_client(address='localhost', port=2000, timeout=10.0)
+    client = carla_utils.get_client(address='localhost', port=port, timeout=10.0)
     world_map = client.get_world().get_map()
     available_points = world_map.get_spawn_points()
 
@@ -33,13 +33,13 @@ def sample_origins(amount=1, seed=None):
     return random.choice(available_points)
 
 
-def sample_destinations(amount=1, seed=None):
+def sample_destinations(amount=1, seed=None, port=20000):
     assert amount > 0
 
     if isinstance(seed, int):
         random.seed(seed)
 
-    client = carla_utils.get_client(address='localhost', port=2000, timeout=10.0)
+    client = carla_utils.get_client(address='localhost', port=port, timeout=10.0)
     world_map = client.get_world().get_map()
     available_points = world_map.get_spawn_points()
 
@@ -56,9 +56,9 @@ def define_agent(class_=CARLAgent, batch_size=128, consider_obs_every=4, load=Fa
 
 
 def define_env(image_shape=(90, 120, 3), render=True, town: Union[None, str] = 'Town01', window_size=(1080, 270),
-               debug=False, **kwargs) -> dict:
+               debug=False,traffic_manager_port=8000, **kwargs) -> dict:
     return dict(class_=CARLAEnv, debug=debug, window_size=window_size, render=render, town=town,
-                image_shape=image_shape, **kwargs)
+                image_shape=image_shape,traffic_manager_port=traffic_manager_port, **kwargs)
 
 
 # -------------------------------------------------------------------------------------------------
@@ -312,7 +312,7 @@ def explore_traces(traces_dir: str, amount=64, seed=None):
 # -------------------------------------------------------------------------------------------------
 
 def stage_s1(episodes: int, timesteps: int, batch_size: int, save_every=None, seed=42, stage_name='stage-s1',
-             port=20000, **kwargs):
+             port=20000,traffic_manager_port=8000, **kwargs):
     """Stage-1: origins (n=10) fixed by seed. Town-3, reverse gear disabled
                 No dynamic objects."""
     policy_lr = kwargs.pop('policy_lr', 3e-4)
@@ -333,10 +333,11 @@ def stage_s1(episodes: int, timesteps: int, batch_size: int, save_every=None, se
 
     env_dict = define_env(port=port, town=None, debug=True,
                           image_shape=(90, 120, 3),
-                          path=dict(origin=sample_origins(amount=10, seed=seed)),
+                          path=dict(origin=sample_origins(amount=10, seed=seed, port=port)),
                           throttle_as_desired_speed=True,
                           info_every=kwargs.get('repeat_action', 1),
-                          disable_reverse=True, window_size=(900, 245))
+                          disable_reverse=True, window_size=(900, 245),
+                          traffic_manager_port=traffic_manager_port)
 
     return Stage(agent=agent_dict, environment=env_dict,
                  learning=dict(agent=dict(episodes=episodes, timesteps=timesteps, render_every=False, close=False,
@@ -344,7 +345,7 @@ def stage_s1(episodes: int, timesteps: int, batch_size: int, save_every=None, se
 
 
 def stage_s2(episodes: int, timesteps: int, batch_size: int, save_every=None, seed=42, stage_name='stage-s2',
-             port=20000, **kwargs):
+             port=20000, traffic_manager_port=8000,**kwargs):
     """Stage-2: 50 random origins + 50 pedestrians"""
     policy_lr = kwargs.pop('policy_lr', 3e-4)
     value_lr = kwargs.pop('value_lr', 3e-4)
@@ -364,10 +365,11 @@ def stage_s2(episodes: int, timesteps: int, batch_size: int, save_every=None, se
 
     env_dict = define_env(port=port, town=None, debug=True, throttle_as_desired_speed=True,
                           image_shape=(90, 120, 3),
-                          path=dict(origin=sample_origins(amount=50, seed=seed)),
+                          path=dict(origin=sample_origins(amount=50, seed=seed, port=port)),
                           spawn=dict(vehicles=0, pedestrians=50),
                           info_every=kwargs.get('repeat_action', 1),
                           disable_reverse=True, window_size=(900, 245),
+                          traffic_manager_port=traffic_manager_port
                           )
 
     return Stage(agent=agent_dict, environment=env_dict,
@@ -376,7 +378,7 @@ def stage_s2(episodes: int, timesteps: int, batch_size: int, save_every=None, se
 
 
 def stage_s3(episodes: int, timesteps: int, batch_size: int, save_every=None, seed=42, stage_name='stage-s3',
-             town='Town01', port=20000, **kwargs):
+             town='Town01', port=20000, traffic_manager_port=8000, **kwargs):
     """Stage-3: random origin with 50 vehicles and 50 pedestrians + random light weather"""
     policy_lr = kwargs.pop('policy_lr', 3e-4)
     value_lr = kwargs.pop('value_lr', 3e-4)
@@ -409,7 +411,8 @@ def stage_s3(episodes: int, timesteps: int, batch_size: int, save_every=None, se
                           random_weathers=light_weathers,
                           spawn=dict(vehicles=50, pedestrians=50),
                           info_every=kwargs.get('repeat_action', 1),
-                          disable_reverse=True, window_size=(900, 245))
+                          disable_reverse=True, window_size=(900, 245),
+                          traffic_manager_port=traffic_manager_port)
 
     return Stage(agent=agent_dict, environment=env_dict,
                  learning=dict(agent=dict(episodes=episodes, timesteps=timesteps, render_every=False, close=False,
@@ -417,7 +420,7 @@ def stage_s3(episodes: int, timesteps: int, batch_size: int, save_every=None, se
 
 
 def stage_s4(episodes: int, timesteps: int, batch_size: int, towns=None, save_every=None, seed=42,
-             stage_name='stage-s4', port=20000, **kwargs):
+             stage_name='stage-s4', port=20000,traffic_manager_port=8000, **kwargs):
     """Stage-4: town with regular traffic (50 vehicles and 50 pedestrians) + random light weather + data-aug"""
     policy_lr = kwargs.pop('policy_lr', 3e-4)
     value_lr = kwargs.pop('value_lr', 3e-4)
@@ -450,7 +453,8 @@ def stage_s4(episodes: int, timesteps: int, batch_size: int, towns=None, save_ev
                           random_weathers=light_weathers,
                           spawn=dict(vehicles=50, pedestrians=50),
                           info_every=kwargs.get('repeat_action', 1),
-                          disable_reverse=True, window_size=(900, 245))
+                          disable_reverse=True, window_size=(900, 245),
+                          traffic_manager_port=traffic_manager_port)
 
     return Stage(agent=agent_dict, environment=env_dict,
                  learning=dict(agent=dict(episodes=episodes, timesteps=timesteps, render_every=False, close=False,
@@ -458,7 +462,7 @@ def stage_s4(episodes: int, timesteps: int, batch_size: int, towns=None, save_ev
 
 
 def stage_s5(episodes: int, timesteps: int, batch_size: int, town: str, save_every=None, seed=42, stage_name='stage-s5',
-             weather=None, traffic='dense', port=20000, **kwargs):
+             weather=None, traffic='dense', port=20000,traffic_manager_port=8000, **kwargs):
     """Stage-5: town with dense traffic (100 vehicles and 200 pedestrians) + random light weather + data-aug"""
     policy_lr = kwargs.pop('policy_lr', 3e-4)
     value_lr = kwargs.pop('value_lr', 3e-4)
@@ -498,7 +502,8 @@ def stage_s5(episodes: int, timesteps: int, batch_size: int, town: str, save_eve
                           random_weathers=weather,
                           spawn=traffic_spec[traffic],
                           info_every=kwargs.get('repeat_action', 1),
-                          disable_reverse=True, window_size=(900, 245))
+                          disable_reverse=True, window_size=(900, 245),
+                          traffic_manager_port=traffic_manager_port)
 
     return Stage(agent=agent_dict, environment=env_dict,
                  learning=dict(agent=dict(episodes=episodes, timesteps=timesteps, render_every=False, close=False,
